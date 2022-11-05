@@ -22,8 +22,43 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('BLOC TO BLOC COMMUNICATION')),
+    return Scaffold(
+      backgroundColor: Colors.red,
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text(
+                'Change Color',
+                style: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              '0',
+              style: TextStyle(
+                fontSize: 52,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {},
+              child: const Text(
+                'Increment Counter',
+                style: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
