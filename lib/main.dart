@@ -46,7 +46,7 @@ class _HomePageState extends State<HomePage> {
       _incrementSize = -100;
       context
           .read<CounterBloc>()
-          .add(const IncrementCounterEvent(incrementSize: -100));
+          .add(IncrementCounterEvent(incrementSize: _incrementSize));
     }
   }
 
