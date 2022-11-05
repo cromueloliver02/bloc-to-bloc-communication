@@ -1,7 +1,7 @@
-import 'package:bloc2bloc/blocs/color/color_bloc.dart';
-import 'package:bloc2bloc/blocs/counter/counter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'blocs/color/color_bloc.dart';
+import 'blocs/counter/counter_bloc.dart';
 
 void main() => runApp(const MyApp());
 
@@ -13,9 +13,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (ctx) => ColorBloc()),
-        BlocProvider(
-          create: (ctx) => CounterBloc(colorBloc: ctx.read<ColorBloc>()),
-        ),
+        BlocProvider(create: (ctx) => CounterBloc()),
       ],
       child: MaterialApp(
         title: 'Bloc to Bloc Communication',
@@ -36,54 +34,67 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
-  void dispose() {
-    context.read<CounterBloc>().close();
-    super.dispose();
+  var _incrementSize = 1;
+
+  void _colorListener(ctx, state) {
+    final color = state.color;
+
+    if (color == Colors.red) _incrementSize = 1;
+    if (color == Colors.green) _incrementSize = 10;
+    if (color == Colors.blue) _incrementSize = 100;
+    if (color == Colors.black) {
+      _incrementSize = -100;
+      context
+          .read<CounterBloc>()
+          .add(const IncrementCounterEvent(incrementSize: -100));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.watch<ColorBloc>().state.color,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ElevatedButton(
-              onPressed: () =>
-                  context.read<ColorBloc>().add(ChangeColorEvent()),
-              child: const Text(
-                'Change Color',
-                style: TextStyle(
-                  fontSize: 24,
+    return BlocConsumer<ColorBloc, ColorState>(
+      listener: _colorListener,
+      builder: (ctx, state) => Scaffold(
+        backgroundColor: state.color,
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () => ctx.read<ColorBloc>().add(ChangeColorEvent()),
+                child: const Text(
+                  'Change Color',
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            BlocSelector<CounterBloc, CounterState, int>(
-              selector: (state) => state.counter,
-              builder: (ctx, counter) => Text(
-                '$counter',
-                style: const TextStyle(
-                  fontSize: 52,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+              const SizedBox(height: 20),
+              BlocSelector<CounterBloc, CounterState, int>(
+                selector: (state) => state.counter,
+                builder: (ctx, counter) => Text(
+                  '$counter',
+                  style: const TextStyle(
+                    fontSize: 52,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () =>
-                  context.read<CounterBloc>().add(IncrementCounterEvent()),
-              child: const Text(
-                'Increment Counter',
-                style: TextStyle(
-                  fontSize: 24,
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => context
+                    .read<CounterBloc>()
+                    .add(IncrementCounterEvent(incrementSize: _incrementSize)),
+                child: const Text(
+                  'Increment Counter',
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
