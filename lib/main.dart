@@ -1,4 +1,7 @@
+import 'package:bloc2bloc/blocs/color/color_bloc.dart';
+import 'package:bloc2bloc/blocs/counter/counter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() => runApp(const MyApp());
 
@@ -7,12 +10,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Bloc to Bloc Communication',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (ctx) => ColorBloc()),
+        BlocProvider(
+          create: (ctx) => CounterBloc(colorBloc: ctx.read<ColorBloc>()),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Bloc to Bloc Communication',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const HomePage(),
       ),
-      home: const HomePage(),
     );
   }
 }
@@ -23,13 +34,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.red,
+      backgroundColor: context.watch<ColorBloc>().state.color,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () =>
+                  context.read<ColorBloc>().add(ChangeColorEvent()),
               child: const Text(
                 'Change Color',
                 style: TextStyle(
@@ -38,17 +50,21 @@ class HomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              '0',
-              style: TextStyle(
-                fontSize: 52,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            BlocSelector<CounterBloc, CounterState, int>(
+              selector: (state) => state.counter,
+              builder: (ctx, counter) => Text(
+                '$counter',
+                style: const TextStyle(
+                  fontSize: 52,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () =>
+                  context.read<CounterBloc>().add(IncrementCounterEvent()),
               child: const Text(
                 'Increment Counter',
                 style: TextStyle(
