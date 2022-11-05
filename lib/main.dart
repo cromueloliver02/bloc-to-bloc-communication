@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'blocs/color/color_bloc.dart';
 import 'blocs/counter/counter_bloc.dart';
+import 'bloc_observers/color_bloc_observer.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  Bloc.observer = ColorBlocObserver();
+
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
